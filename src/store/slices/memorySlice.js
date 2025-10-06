@@ -1,57 +1,60 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  gamesPlayed: 0,
+  gamesWon: 0,
+  highScore: 0,
+  currentScore: 0,
+  difficulty: 'easy',
   clipboardItems: [],
-  contextHistory: [],
-  currentContext: null,
-  memoryGameScores: [],
 };
 
 const memorySlice = createSlice({
   name: 'memory',
   initialState,
   reducers: {
-    addClipboardItem: (state, action) => {
-      state.clipboardItems.unshift({
-        id: Date.now(),
-        text: action.payload.text,
-        timestamp: new Date().toISOString(),
-        category: action.payload.category || 'general',
-      });
-      // Keep only last 20 items
-      if (state.clipboardItems.length > 20) {
-        state.clipboardItems = state.clipboardItems.slice(0, 20);
+    startGame(state) {
+      state.currentScore = 0;
+      state.gamesPlayed += 1;
+    },
+    updateScore(state, action) {
+      state.currentScore = action.payload;
+      if (action.payload > state.highScore) {
+        state.highScore = action.payload;
       }
     },
-    removeClipboardItem: (state, action) => {
-      state.clipboardItems = state.clipboardItems.filter((item) => item.id !== action.payload);
+    winGame(state) {
+      state.gamesWon += 1;
     },
-    clearClipboard: (state) => {
+    setDifficulty(state, action) {
+      state.difficulty = action.payload;
+    },
+    addClipboardItem(state, action) {
+      state.clipboardItems.push({
+        id: Date.now(),
+        content: action.payload,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    removeClipboardItem(state, action) {
+      state.clipboardItems = state.clipboardItems.filter(
+        item => item.id !== action.payload
+      );
+    },
+    clearClipboard(state) {
       state.clipboardItems = [];
-    },
-    setCurrentContext: (state, action) => {
-      state.currentContext = action.payload;
-      state.contextHistory.push({
-        context: action.payload,
-        timestamp: new Date().toISOString(),
-      });
-    },
-    addMemoryGameScore: (state, action) => {
-      state.memoryGameScores.push({
-        score: action.payload.score,
-        gameType: action.payload.gameType,
-        timestamp: new Date().toISOString(),
-      });
     },
   },
 });
 
 export const {
+  startGame,
+  updateScore,
+  winGame,
+  setDifficulty,
   addClipboardItem,
   removeClipboardItem,
   clearClipboard,
-  setCurrentContext,
-  addMemoryGameScore,
 } = memorySlice.actions;
 
 export default memorySlice.reducer;

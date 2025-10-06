@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import Sidebar from '../components/layout/Sidebar';
 import ThemedDashboard from './ThemedDashboard';
 
-export default function DashboardAdult() {
+export default function DashboardChild() {
   return (
     <Box display="flex">
       <Sidebar />

@@ -1,15 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Default user profile template
 const defaultUserState = {
   id: null,
   name: '',
   email: '',
-  ageGroup: '',    // 'child', 'teen', 'adult', 'senior'
+  ageGroup: 'adult',
   gender: '',
   pronouns: '',
   avatar: '',
-  theme: '',       // "light", "dark" or preferred color/set
+  theme: 'light',
   adhdSubtype: '',
 };
 
@@ -25,42 +24,44 @@ const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    loginStart: (state) => {
+    loginStart(state) {
       state.loading = true;
       state.error = null;
     },
-    loginSuccess: (state, action) => {
+    loginSuccess(state, action) {
       state.loading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.error = null;
     },
-    loginFailure: (state, action) => {
+    loginFailure(state, action) {
       state.loading = false;
       state.isAuthenticated = false;
       state.error = action.payload;
     },
-    logout: (state) => {
+    logout(state) {
       state.isAuthenticated = false;
       state.user = { ...defaultUserState };
       state.token = null;
       state.error = null;
     },
-    updateUser: (state, action) => {
+    updateUser(state, action) {
       state.user = { ...state.user, ...action.payload };
     },
-    updateSignUpField: (state, action) => {
+    updateSignUpField(state, action) {
       state.user = { ...state.user, ...action.payload };
     },
-    resetUser: (state) => {
-      // For testing/demo: clears all to fresh user state
-      return initialState;
+    resetUser(state) {
+      state.isAuthenticated = false;
+      state.user = { ...defaultUserState };
+      state.token = null;
+      state.loading = false;
+      state.error = null;
     },
   },
 });
 
-// Export ALL actions including the signup field updater!
 export const {
   loginStart,
   loginSuccess,

@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  routines: [], // Array of { task, time, completed }
+  routines: [],
+  activeRoutine: null,
 };
 
 const routineSlice = createSlice({
@@ -9,32 +10,26 @@ const routineSlice = createSlice({
   initialState,
   reducers: {
     addRoutine: (state, action) => {
-      state.routines.push(action.payload);
+      state.routines.push({
+        id: Date.now(),
+        ...action.payload,
+        createdAt: new Date().toISOString(),
+      });
     },
-    toggleRoutineCompletion: (state, action) => {
-      const index = action.payload;
-      if(state.routines[index]) {
-        state.routines[index].completed = !state.routines[index].completed;
+    updateRoutine: (state, action) => {
+      const index = state.routines.findIndex(r => r.id === action.payload.id);
+      if (index !== -1) {
+        state.routines[index] = { ...state.routines[index], ...action.payload };
       }
     },
     deleteRoutine: (state, action) => {
-      state.routines.splice(action.payload, 1);
+      state.routines = state.routines.filter(r => r.id !== action.payload);
     },
-    clearRoutines: (state) => {
-      state.routines = [];
-    },
-    setRoutines: (state, action) => {
-      state.routines = action.payload;
+    setActiveRoutine: (state, action) => {
+      state.activeRoutine = action.payload;
     },
   },
 });
 
-export const {
-  addRoutine,
-  toggleRoutineCompletion,
-  deleteRoutine,
-  clearRoutines,
-  setRoutines,
-} = routineSlice.actions;
-
+export const { addRoutine, updateRoutine, deleteRoutine, setActiveRoutine } = routineSlice.actions;
 export default routineSlice.reducer;

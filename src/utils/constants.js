@@ -1,24 +1,28 @@
-export const BADGE_CRITERIA = {
-  FIRST_TASK: 1,
-  WEEK_WARRIOR: 2,
-  FOCUS_MASTER: 3,
-  EARLY_BIRD: 4,
-  NIGHT_OWL: 5,
-  TASK_NINJA: 6,
+export const AGE_GROUPS = {
+  CHILD: 'child',
+  TEEN: 'teen',
+  ADULT: 'adult',
+  SENIOR: 'senior',
 };
 
-export const POINTS = {
-  TASK_COMPLETE: 10,
-  STREAK_BONUS: 5,
-  BADGE_UNLOCK: 100,
-  MEMORY_GAME: 20,
+export const NOTIFICATION_TYPES = {
+  TASK_REMINDER: 'task_reminder',
+  STREAK_MILESTONE: 'streak_milestone',
+  ACHIEVEMENT_UNLOCKED: 'achievement_unlocked',
+  FOCUS_COMPLETE: 'focus_complete',
 };
 
-export const COLORS = {
-  primary: '#667eea',
-  secondary: '#764ba2',
-  success: '#10b981',
-  warning: '#f59e0b',
-  error: '#ef4444',
-  info: '#3b82f6',
+export const POMODORO_PRESETS = {
+  CLASSIC: { work: 25, break: 5, longBreak: 15 },
+  SHORT: { work: 15, break: 3, longBreak: 10 },
+  LONG: { work: 50, break: 10, longBreak: 30 },
 };
+
+export const ADHD_TIPS = [
+  "Break large tasks into smaller, manageable steps",
+  "Use visual timers to track your focus sessions",
+  "Take regular breaks to avoid burnout",
+  "Celebrate small wins - every step counts!",
+  "Create a dedicated workspace free from distractions",
+  "Use the 2-minute rule: if it takes less than 2 minutes, do it now",
+];

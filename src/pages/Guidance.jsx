@@ -1,14 +1,14 @@
 import React from 'react';
 import { Container, Box } from '@mui/material';
-import RewardsPanel from '../components/dashboard/RewardsPanel';
+import TaskGuidance from '../components/dashboard/TaskGuidance';
 import Sidebar from '../components/layout/Sidebar';
 
-export default function Rewards() {
+export default function Guidance() {
   return (
     <Box display="flex">
       <Sidebar />
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <RewardsPanel />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <TaskGuidance />
       </Container>
     </Box>
   );
