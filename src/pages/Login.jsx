@@ -40,7 +40,8 @@ const Login = () => {
         dispatch(loginSuccess({ user: mockUser, token: mockToken }));
         localStorage.setItem('token', mockToken);
         setLoading(false);
-        navigate('/dashboard');
+        navigate(`/dashboard/${userObj.ageGroup || 'adult'}`); // after successful login/signup
+
       }
     }, 1200);
   };

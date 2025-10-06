@@ -1,31 +1,98 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers, createSlice } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { combineReducers } from '@reduxjs/toolkit';
+
 import routineReducer from './slices/RoutineSlice.js';
 import userReducer from './slices/userSlice';
 import gamificationReducer from './slices/gamificationSlice';
 import memoryReducer from './slices/memorySlice';
 
-// Combine all reducers, including routine
+// Define the app slice
+const initialState = {
+  urgency: 0.25,
+  timerActive: false,
+  focusMode: false,
+  soundPlaying: false,
+
+  urgencyStep: 0.02,
+  intervalMs: 1000,
+  workDuration: 25 * 60, // 25 minutes based on 1 second intervals
+  breakDuration: 5 * 60,  // 5 minutes
+  isBreak: false,
+  intervalCount: 0,
+};
+
+const appSlice = createSlice({
+  name: 'app',
+  initialState,
+  reducers: {
+    setUrgency(state, action) {
+      state.urgency = action.payload;
+    },
+    setTimerActive(state, action) {
+      state.timerActive = action.payload;
+    },
+    setFocusMode(state, action) {
+      state.focusMode = action.payload;
+    },
+    setSoundPlaying(state, action) {
+      state.soundPlaying = action.payload;
+    },
+    setUrgencyStep(state, action) {
+      state.urgencyStep = action.payload;
+    },
+    setIntervalMs(state, action) {
+      state.intervalMs = action.payload;
+    },
+    setWorkDuration(state, action) {
+      state.workDuration = action.payload;
+    },
+    setBreakDuration(state, action) {
+      state.breakDuration = action.payload;
+    },
+    setIsBreak(state, action) {
+      state.isBreak = action.payload;
+    },
+    setIntervalCount(state, action) {
+      state.intervalCount = action.payload;
+    },
+  },
+});
+
+// Export app actions for usage
+export const {
+  setUrgency,
+  setTimerActive,
+  setFocusMode,
+  setSoundPlaying,
+  setUrgencyStep,
+  setIntervalMs,
+  setWorkDuration,
+  setBreakDuration,
+  setIsBreak,
+  setIntervalCount,
+} = appSlice.actions;
+
+// Combine all reducers including app
 const rootReducer = combineReducers({
   user: userReducer,
   gamification: gamificationReducer,
   memory: memoryReducer,
   routine: routineReducer,
+  app: appSlice.reducer,  // add app slice reducer here
 });
 
-// Persist configuration, including routine
+// Persist configuration with 'app' added to whitelist
 const persistConfig = {
   key: 'neuroflow-root',
   storage,
-  whitelist: ['user', 'gamification', 'memory', 'routine'],
+  whitelist: ['user', 'gamification', 'memory', 'routine', 'app'], // include app slice here
 };
 
 // Create persisted reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Configure store
+// Configure store with persisted reducer and necessary middleware settings
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>

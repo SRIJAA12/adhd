@@ -90,7 +90,8 @@ export default function Signup() {
     dispatch(updateSignUpField(userObj));
     dispatch(loginSuccess({ user: userObj, token: 'demo-token-' + Date.now() }));
     localStorage.setItem('token', 'demo-token-' + Date.now());
-    navigate('/dashboard');
+    navigate(`/dashboard/${userObj.ageGroup || 'adult'}`); // after successful login/signup
+
   };
 
   return (
