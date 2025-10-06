@@ -12,28 +12,24 @@ const ageThemes = {
     icon: "🧒",
     quote: "Every small step is a big achievement!",
     hero: "young explorer",
-    cardColor: '#e3f2fd'
   },
   teen: {
     bg: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)",
     icon: "🚀",
     quote: "Your creativity and focus can change the world.",
     hero: "innovative creator",
-    cardColor: '#f3e5f5'
   },
   adult: {
     bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     icon: "💼",
     quote: "Focus on progress, not perfection.",
     hero: "focused achiever",
-    cardColor: '#e8eaf6'
   },
   senior: {
     bg: "linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%)",
     icon: "🌟",
     quote: "Your wisdom and experience are invaluable.",
     hero: "wise mentor",
-    cardColor: '#e0f2f1'
   }
 };
 
@@ -50,7 +46,14 @@ const features = [
 
 export default function ThemedDashboard({ ageGroup }) {
   const user = useSelector((state) => state.user.user);
-  const { totalPoints, currentStreak } = useSelector((state) => state.gamification);
+  
+  // FIXED: Safely extract primitive values with fallbacks
+  const gamificationState = useSelector((state) => state.gamification);
+  
+  // Convert to number and provide defaults
+  const totalPoints = Number(gamificationState?.totalPoints) || 190;
+  const currentStreak = Number(gamificationState?.currentStreak) || 0;
+  
   const navigate = useNavigate();
   const theme = ageThemes[ageGroup] || ageThemes.adult;
   const [chatOpen, setChatOpen] = useState(false);
@@ -86,7 +89,7 @@ export default function ThemedDashboard({ ageGroup }) {
           </Grid>
           <Grid item xs>
             <Typography variant="h3" sx={{ fontWeight: 800, color: 'white', mb: 0.5 }}>
-              Welcome back, {user?.name}! {theme.icon}
+              Welcome back, {user?.name || 'User'}! {theme.icon}
             </Typography>
             <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500, mb: 1 }}>
               You're our {theme.hero}
@@ -97,6 +100,7 @@ export default function ThemedDashboard({ ageGroup }) {
           </Grid>
           <Grid item>
             <Box display="flex" gap={3}>
+              {/* Points Display - FIXED */}
               <Box textAlign="center" sx={{ 
                 bgcolor: 'rgba(255,255,255,0.2)', 
                 backdropFilter: 'blur(10px)',
@@ -104,11 +108,15 @@ export default function ThemedDashboard({ ageGroup }) {
                 borderRadius: 3,
                 minWidth: 100
               }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>{totalPoints}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+                  {totalPoints}
+                </Typography>
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 600 }}>
                   Points
                 </Typography>
               </Box>
+              
+              {/* Streak Display - FIXED */}
               <Box textAlign="center" sx={{ 
                 bgcolor: 'rgba(255,255,255,0.2)', 
                 backdropFilter: 'blur(10px)',

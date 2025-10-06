@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Paper, LinearProgress, IconButton, Slider, Switch, FormControlLabel } from '@mui/material';
+import { Box, Typography, Button, Paper, LinearProgress, Slider, Switch, FormControlLabel, Alert } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { setTimerActive, setIntervalCount, setWorkDuration, setSoundPlaying, setFocusMode, resetTimer } from '../../store/slices/appSlice';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -8,27 +8,28 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { Howl } from 'howler';
+import { addToGoogleCalendar } from '../../utils/calendarHelper';
 
-// Ambient Sound Setup
+// Ambient Sound
 const ambientSound = new Howl({
-  src: ['/sounds/ambient-focus.mp3'], // Make sure you have this file in public/sounds/
+  src: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'],
   volume: 0.3,
   loop: true,
 });
 
 // Notification Sound
 const notificationSound = new Howl({
-  src: ['/sounds/notification.mp3'],
+  src: ['https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'],
   volume: 0.5,
 });
 
-// Urgency Bar Component with Color Transitions
+// Urgency Bar Component - Green → Yellow → Red
 function UrgencyBar({ intervalCount, workDuration }) {
   const remaining = Math.max(0, workDuration - intervalCount);
   const progress = ((workDuration - remaining) / workDuration) * 100;
   
-  // Color logic: Green -> Yellow -> Red
   let barColor = '#10b981'; // Green
   if (remaining <= workDuration / 2 && remaining > workDuration / 4) {
     barColor = '#f59e0b'; // Yellow
@@ -43,7 +44,7 @@ function UrgencyBar({ intervalCount, workDuration }) {
           Task Urgency
         </Typography>
         <Typography variant="caption" fontWeight={700} sx={{ color: barColor }}>
-          {remaining > 0 ? `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')} left` : 'Complete!'}
+          {remaining > 0 ? `${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')} remaining` : 'Complete!'}
         </Typography>
       </Box>
       <LinearProgress
@@ -63,14 +64,12 @@ function UrgencyBar({ intervalCount, workDuration }) {
   );
 }
 
-// Request notification permission
 function requestNotificationPermission() {
   if ('Notification' in window && Notification.permission !== 'granted') {
     Notification.requestPermission();
   }
 }
 
-// Send browser notification
 function sendNotification(title, body) {
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification(title, { body, icon: '/favicon.ico' });
@@ -89,6 +88,7 @@ export default function PomodoroTimer() {
   } = useSelector((state) => state.app);
 
   const [sessionCount, setSessionCount] = useState(0);
+  const [calendarAdded, setCalendarAdded] = useState(false);
 
   useEffect(() => {
     requestNotificationPermission();
@@ -102,7 +102,6 @@ export default function PomodoroTimer() {
       const updatedCount = intervalCount + 1;
 
       if (updatedCount >= workDuration) {
-        // Session complete
         sendNotification('🎉 Focus Session Complete!', 'Great work! Take a break.');
         dispatch(setTimerActive(false));
         dispatch(resetTimer());
@@ -129,17 +128,10 @@ export default function PomodoroTimer() {
   const seconds = remainingSeconds % 60;
 
   // Google Calendar Integration
-  const addToGoogleCalendar = () => {
-    const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + workDuration * 1000);
-    
-    const formatDate = (date) => {
-      return date.toISOString().replace(/-|:|\.\d\d\d/g, '');
-    };
-
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=NeuroFlow%20Focus%20Session&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=Focus%20session%20to%20boost%20productivity%20and%20manage%20ADHD&location=NeuroFlow%20App`;
-
-    window.open(calendarUrl, '_blank');
+  const handleAddToCalendar = () => {
+    addToGoogleCalendar(Math.floor(workDuration / 60));
+    setCalendarAdded(true);
+    setTimeout(() => setCalendarAdded(false), 3000);
   };
 
   return (
@@ -151,7 +143,13 @@ export default function PomodoroTimer() {
         Pomodoro technique to stay focused and productive
       </Typography>
 
-      {/* Urgency Bar */}
+      {calendarAdded && (
+        <Alert severity="success" icon={<EventAvailableIcon />} sx={{ mb: 2 }}>
+          Calendar event created! Check Google Calendar.
+        </Alert>
+      )}
+
+      {/* Urgency Bar with Color Coding */}
       <UrgencyBar intervalCount={intervalCount} workDuration={workDuration} />
 
       {/* Timer Display */}
@@ -169,7 +167,7 @@ export default function PomodoroTimer() {
           {minutes}:{seconds.toString().padStart(2, '0')}
         </Typography>
         <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)', mt: 1 }}>
-          Sessions completed today: {sessionCount}
+          Sessions today: {sessionCount}
         </Typography>
       </Box>
 
@@ -203,7 +201,7 @@ export default function PomodoroTimer() {
         </Button>
       </Box>
 
-      {/* Duration Slider */}
+      {/* Duration Slider - Changed min to 1 */}
       <Box mb={3}>
         <Typography variant="body2" fontWeight={600} gutterBottom>
           Work Duration: {Math.floor(workDuration / 60)} minutes
@@ -211,37 +209,23 @@ export default function PomodoroTimer() {
         <Slider
           value={workDuration / 60}
           onChange={(e, value) => dispatch(setWorkDuration(value * 60))}
-          min={5}
+          min={1}
           max={60}
-          step={5}
-          marks
+          step={1}
+          marks={[
+            { value: 1, label: '1m' },
+            { value: 15, label: '15m' },
+            { value: 25, label: '25m' },
+            { value: 45, label: '45m' },
+            { value: 60, label: '60m' }
+          ]}
           disabled={timerActive}
           sx={{ color: '#667eea' }}
         />
       </Box>
 
-      {/* Google Calendar Button */}
-      <Button
-        fullWidth
-        variant="outlined"
-        startIcon={<CalendarTodayIcon />}
-        onClick={addToGoogleCalendar}
-        sx={{
-          mb: 2,
-          py: 1.5,
-          borderColor: '#4285f4',
-          color: '#4285f4',
-          fontWeight: 600,
-          '&:hover': {
-            borderColor: '#3367d6',
-            backgroundColor: 'rgba(66,133,244,0.05)',
-          }
-        }}
-      >
-        Add to Google Calendar
-      </Button>
 
-      {/* Ambient Sound & Focus Mode */}
+      {/* Ambient Sound & Focus Mode Controls */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <FormControlLabel
           control={
