@@ -1,59 +1,47 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { 
-  Box, TextField, Button, Typography, Paper, Alert, CircularProgress,
-  Divider, Container, Fade 
+import {
+  Box, Container, Paper, Typography, TextField, Button, Divider, Alert
 } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { motion } from 'framer-motion';
 import { loginSuccess } from '../store/slices/userSlice';
-import EmailIcon from '@mui/icons-material/Email';
 import GoogleIcon from '@mui/icons-material/Google';
-import AppleIcon from '@mui/icons-material/Apple';
-import MicrosoftIcon from '@mui/icons-material/Microsoft';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import FaceIcon from '@mui/icons-material/Face';
 
-const Login = () => {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleMagicLink = async () => {
-    if (!email.includes('@')) {
-      setMessage('Please enter a valid email address');
+  const handleMagicLinkLogin = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setMessage('Please enter your email');
       return;
     }
-    
+
     setLoading(true);
-    setMessage('');
-    
-    // Simulate magic link sending
     setTimeout(() => {
-      setSuccess(true);
-      setMessage('✅ Magic link sent! Check your email for instant sign-in.');
+      setMessage('✓ Magic link sent! Check your email.');
       setLoading(false);
-      
-      // Auto-login for demo (remove in production)
-      setTimeout(() => {
-        const mockUser = {
-          id: Date.now().toString(),
-          name: email.split('@')[0],
-          email: email,
-          ageGroup: 'adult',
-          avatar: `https://ui-avatars.com/api/?name=${email}&background=667eea&color=fff`,
-        };
-        dispatch(loginSuccess({ user: mockUser, token: 'demo-token-' + Date.now() }));
-        localStorage.setItem('token', 'demo-token-' + Date.now());
-        navigate('/dashboard/adult');
-      }, 2000);
     }, 1500);
   };
 
-  const handleSocialLogin = (provider) => {
-    setMessage(`Redirecting to ${provider}...`);
-    setTimeout(() => navigate('/signup'), 1000);
+  const handleDemoLogin = () => {
+    const mockUser = {
+      id: 'demo-user-1',
+      name: 'Demo User',
+      email: 'demo@neuroflow.com',
+      ageGroup: 'adult',
+      avatar: 'https://ui-avatars.com/api/?name=Demo+User&background=667eea&color=fff',
+    };
+
+    dispatch(loginSuccess({ user: mockUser, token: 'demo-token' }));
+    navigate('/dashboard/adult');
   };
 
   return (
@@ -71,8 +59,7 @@ const Login = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Paper elevation={24} sx={{ p: 5, borderRadius: 4 }}>
-            {/* Logo & Title */}
+          <Paper elevation={24} sx={{ p: 4, borderRadius: 4 }}>
             <Box textAlign="center" mb={4}>
               <Typography variant="h3" sx={{
                 fontWeight: 800,
@@ -81,105 +68,109 @@ const Login = () => {
                 WebkitTextFillColor: 'transparent',
                 mb: 1
               }}>
-                🧠 NeuroFlow Suite
+                🧠 Welcome Back
               </Typography>
-              <Typography variant="h6" color="text.secondary" fontWeight={500}>
-                Empowering ADHD Minds to Thrive
+              <Typography variant="body1" color="text.secondary">
+                Sign in to NeuroFlow Suite
               </Typography>
             </Box>
 
             {message && (
-              <Fade in={!!message}>
-                <Alert severity={success ? 'success' : 'info'} sx={{ mb: 3 }}>
-                  {message}
-                </Alert>
-              </Fade>
+              <Alert severity={message.includes('✓') ? 'success' : 'info'} sx={{ mb: 3 }}>
+                {message}
+              </Alert>
             )}
 
-            {/* Email Magic Link */}
-            <TextField
-              fullWidth
-              label="Email Address"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleMagicLink()}
-              placeholder="you@example.com"
-              disabled={loading}
-              sx={{ mb: 2 }}
-              InputProps={{
-                startAdornment: <EmailIcon sx={{ mr: 1, color: 'action.active' }} />
-              }}
-            />
-
+            {/* NEW: Face Recognition Login Button */}
             <Button
               fullWidth
               variant="contained"
               size="large"
-              onClick={handleMagicLink}
-              disabled={loading}
+              component={Link}
+              to="/face-login"
+              startIcon={<FaceIcon />}
               sx={{
-                py: 1.8,
-                fontSize: '1.1rem',
+                mb: 2,
+                py: 1.5,
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 20px rgba(102,126,234,0.4)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #5568d3 0%, #63408d 100%)',
-                  boxShadow: '0 6px 25px rgba(102,126,234,0.5)',
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                 }
               }}
             >
-              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send Magic Link'}
+              Login with Face Recognition
             </Button>
 
             <Divider sx={{ my: 3 }}>
-              <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                OR CONTINUE WITH
+              <Typography variant="body2" color="text.secondary">
+                or continue with email
               </Typography>
             </Divider>
 
-            {/* Social Logins */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <form onSubmit={handleMagicLinkLogin}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  fontWeight: 700,
+                  mb: 2
+                }}
+              >
+                {loading ? 'Sending...' : 'Send Magic Link'}
+              </Button>
+            </form>
+
+            <Divider sx={{ my: 3 }}>or</Divider>
+
+            <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
               <Button
                 fullWidth
                 variant="outlined"
-                size="large"
                 startIcon={<GoogleIcon />}
-                onClick={() => handleSocialLogin('Google')}
-                sx={{ py: 1.5, fontWeight: 600 }}
+                sx={{ py: 1.5 }}
               >
                 Google
               </Button>
               <Button
                 fullWidth
                 variant="outlined"
-                size="large"
-                startIcon={<MicrosoftIcon />}
-                onClick={() => handleSocialLogin('Microsoft')}
-                sx={{ py: 1.5, fontWeight: 600 }}
+                startIcon={<FacebookIcon />}
+                sx={{ py: 1.5 }}
               >
-                Microsoft
-              </Button>
-              <Button
-                fullWidth
-                variant="outlined"
-                size="large"
-                startIcon={<AppleIcon />}
-                onClick={() => handleSocialLogin('Apple')}
-                sx={{ py: 1.5, fontWeight: 600 }}
-              >
-                Apple
+                Facebook
               </Button>
             </Box>
 
-            {/* Footer */}
-            <Box mt={4} textAlign="center">
-              <Typography variant="body2" color="text.secondary" mb={1}>
-                🔒 No passwords needed! We use secure magic links.
-              </Typography>
-              <Typography variant="body2">
-                New here? <Link to="/signup" style={{ color: '#667eea', fontWeight: 700 }}>Create your profile</Link>
+            <Button
+              fullWidth
+              variant="text"
+              onClick={handleDemoLogin}
+              sx={{ mb: 2 }}
+            >
+              Try Demo Account
+            </Button>
+
+            <Box textAlign="center">
+              <Typography variant="body2" color="text.secondary">
+                Don't have an account?{' '}
+                <Link to="/signup" style={{ color: '#667eea', fontWeight: 700 }}>
+                  Sign up
+                </Link>
               </Typography>
             </Box>
           </Paper>
@@ -187,6 +178,4 @@ const Login = () => {
       </Container>
     </Box>
   );
-};
-
-export default Login;
+}
