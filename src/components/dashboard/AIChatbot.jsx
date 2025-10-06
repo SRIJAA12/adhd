@@ -6,7 +6,8 @@ import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+
 
 export default function AIChatbot({ open, onClose }) {
   const [messages, setMessages] = useState([
