@@ -18,17 +18,49 @@ mongoose.connect("mongodb+srv://srijaaanandhan12_db_user:7TZW3nu4Rs6O49W6@cluste
 .then(() => console.log("MongoDB connected"))
 .catch(err => console.error("MongoDB error:", err));
 
-// Define User schema and model with faceDescriptor field
+// Define User schema and model with avatar and faceDescriptor field
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String },
+  avatar: { type: String, default: '' },
   faceDescriptor: { type: [Number], default: null },
   adhdSubtype: { type: String, enum: ['inattentive', 'hyperactive', 'combined'], default: 'combined' },
+  pronouns: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model('User', userSchema);
+
+// Get profile route
+app.get('/api/profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if(!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Update profile route
+app.put('/api/profile/:id', async (req, res) => {
+  const { username, email, avatar, pronouns } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if(!user) return res.status(404).json({ error: 'User not found' });
+
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.avatar = avatar || user.avatar;
+    user.pronouns = pronouns || user.pronouns;
+
+    await user.save();
+    res.json({ message: 'Profile updated', user });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // Euclidean distance helper
 function euclideanDistance(desc1, desc2) {
@@ -83,7 +115,9 @@ app.post('/api/login/face', async (req, res) => {
         id: matchedUser._id,
         username: matchedUser.username,
         email: matchedUser.email,
-        adhdSubtype: matchedUser.adhdSubtype
+        adhdSubtype: matchedUser.adhdSubtype,
+        avatar: matchedUser.avatar,
+        pronouns: matchedUser.pronouns
       }
     });
   } catch (err) {
@@ -94,7 +128,7 @@ app.post('/api/login/face', async (req, res) => {
 
 // Face Signup API
 app.post('/api/signup/face', async (req, res) => {
-  const { username, email, descriptor, adhdSubtype } = req.body;
+  const { username, email, descriptor, adhdSubtype, avatar, pronouns } = req.body;
   if (!username || !email || !descriptor) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -111,7 +145,9 @@ app.post('/api/signup/face', async (req, res) => {
       username: username.trim(),
       email: email.trim().toLowerCase(),
       faceDescriptor: descriptor,
-      adhdSubtype: adhdSubtype || 'combined'
+      adhdSubtype: adhdSubtype || 'combined',
+      avatar: avatar || '',
+      pronouns: pronouns || '',
     });
     await newUser.save();
     res.json({ message: 'Registration successful', username: newUser.username });
