@@ -2,19 +2,27 @@ import React from 'react';
 import { 
   AppBar, Toolbar, Typography, Box, Button, IconButton, Avatar, Menu, MenuItem 
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/slices/userSlice';
 import HomeIcon from '@mui/icons-material/Home';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function NavBar() {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  
+  // Check if we're on a feature page (not dashboard or auth pages)
+  const isFeaturePage = isAuthenticated && 
+    !location.pathname.startsWith('/dashboard') && 
+    !location.pathname.includes('/login') && 
+    !location.pathname.includes('/signup');
 
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -57,22 +65,44 @@ export default function NavBar() {
           
           {isAuthenticated && (
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-              <Button 
-                component={Link} 
-                to="/" 
-                startIcon={<HomeIcon />}
-                sx={{ color: 'text.primary', fontWeight: 600 }}
-              >
-                Home
-              </Button>
-              <Button 
-                component={Link} 
-                to={`/dashboard/${user?.ageGroup || 'adult'}`}
-                startIcon={<DashboardIcon />}
-                sx={{ color: 'text.primary', fontWeight: 600 }}
-              >
-                Dashboard
-              </Button>
+              {isFeaturePage ? (
+                <Button 
+                  component={Link} 
+                  to={`/dashboard/${user?.ageGroup || 'adult'}`}
+                  startIcon={<ArrowBackIcon />}
+                  variant="outlined"
+                  sx={{ 
+                    color: 'primary.main', 
+                    fontWeight: 600,
+                    borderColor: 'primary.main',
+                    '&:hover': {
+                      bgcolor: 'primary.light',
+                      borderColor: 'primary.dark'
+                    }
+                  }}
+                >
+                  Back to Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    component={Link} 
+                    to="/" 
+                    startIcon={<HomeIcon />}
+                    sx={{ color: 'text.primary', fontWeight: 600 }}
+                  >
+                    Home
+                  </Button>
+                  <Button 
+                    component={Link} 
+                    to={`/dashboard/${user?.ageGroup || 'adult'}`}
+                    startIcon={<DashboardIcon />}
+                    sx={{ color: 'text.primary', fontWeight: 600 }}
+                  >
+                    Dashboard
+                  </Button>
+                </>
+              )}
             </Box>
           )}
         </Box>

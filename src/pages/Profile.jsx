@@ -26,7 +26,7 @@ export default function Profile() {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.name || user?.username || '',
     email: user?.email || '',
     pronouns: user?.pronouns || '',
     ageGroup: user?.ageGroup || 'adult',
@@ -40,12 +40,26 @@ export default function Profile() {
       const response = await fetch(`http://localhost:5000/api/profile/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          username: formData.name,
+          email: formData.email,
+          avatar: formData.avatar,
+          pronouns: formData.pronouns,
+          ageGroup: formData.ageGroup
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        dispatch(updateUser(data.user));
+        // Update Redux store with new user data including avatar
+        dispatch(updateUser({
+          name: data.user.username,
+          username: data.user.username,
+          email: data.user.email,
+          avatar: data.user.avatar,
+          pronouns: data.user.pronouns,
+          ageGroup: data.user.ageGroup
+        }));
         setSaved(true);
         setError('');
         setTimeout(() => setSaved(false), 3000);
@@ -78,8 +92,16 @@ export default function Profile() {
         <Paper sx={{ p: 4 }}>
           {/* Avatar Section */}
           <Box display="flex" alignItems="center" mb={4}>
-            <Avatar src={formData.avatar} sx={{ width: 100, height: 100, mr: 3 }}>
-              {formData.name?.[0]}
+            <Avatar 
+              src={formData.avatar} 
+              sx={{ 
+                width: 100, 
+                height: 100, 
+                mr: 3,
+                border: '3px solid #667eea'
+              }}
+            >
+              {formData.avatar ? null : formData.name?.[0]}
             </Avatar>
             <Box>
               <Typography variant="h5" fontWeight={700}>{formData.name}</Typography>

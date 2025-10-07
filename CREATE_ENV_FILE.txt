@@ -1,0 +1,14 @@
+IMPORTANT: Create .env file manually
+
+1. Create a new file named ".env" (exactly, with the dot at the beginning) in the neuroflow-dashboard folder
+
+2. Copy and paste this content into the .env file:
+
+OPENAI_API_KEY=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
+PORT=5000
+
+3. Save the file
+
+4. The file should be at: d:\adhd\neuroflow-dashboard\.env
+
+5. This file is protected by .gitignore and won't be committed to git

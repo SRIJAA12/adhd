@@ -9,16 +9,20 @@ import StarIcon from '@mui/icons-material/Star';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import PersonIcon from '@mui/icons-material/Person';
 
 const navItems = [
   { text: 'Tasks', icon: <AssignmentIcon />, route: '/tasks' },
+  { text: 'AI Prioritizer', icon: <PsychologyIcon />, route: '/ai-prioritizer' },
   { text: 'Timer', icon: <AccessTimeIcon />, route: '/timer' },
   { text: 'Rewards', icon: <EmojiEventsIcon />, route: '/rewards' },
   { text: 'Memory', icon: <MemoryIcon />, route: '/memory' },
   { text: 'Progress', icon: <StarIcon />, route: '/achievements' },
   { text: 'Clipboard', icon: <ContentPasteIcon />, route: '/clipboard' },
   { text: 'Guidance', icon: <LightbulbIcon />, route: '/guidance' },
-  { text: 'Streak', icon: <LocalFireDepartmentIcon />, route: '/streak' }
+  { text: 'Streak', icon: <LocalFireDepartmentIcon />, route: '/streak' },
+  { text: 'Profile', icon: <PersonIcon />, route: '/profile' }
 ];
 
 export default function Sidebar() {

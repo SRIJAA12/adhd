@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useSelector } from 'react-redux';
+import NavBar from './components/layout/NavBar';
 
 // Pages
 import Login from './pages/Login';
@@ -22,6 +23,7 @@ import Clipboard from './pages/Clipboard';
 import Guidance from './pages/Guidance';
 import Streak from './pages/Streak';
 import Profile from './pages/Profile';
+import AITaskPrioritizer from './pages/AITaskPrioritizer';
 import NotFound from './pages/NotFound';
 import PrivateRoute from './components/auth/PrivateRoute';
 
@@ -38,6 +40,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {isAuthenticated && <NavBar />}
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -98,6 +101,7 @@ function App() {
         <Route path="/clipboard" element={<PrivateRoute><Clipboard /></PrivateRoute>} />
         <Route path="/guidance" element={<PrivateRoute><Guidance /></PrivateRoute>} />
         <Route path="/streak" element={<PrivateRoute><Streak /></PrivateRoute>} />
+        <Route path="/ai-prioritizer" element={<PrivateRoute><AITaskPrioritizer /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
         {/* 404 */}

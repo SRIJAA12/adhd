@@ -35,13 +35,15 @@ const ageThemes = {
 
 const features = [
   { label: 'Tasks', route: '/tasks', icon: '📝', color: '#667eea', description: 'Manage your daily tasks' },
+  { label: 'AI Prioritizer', route: '/ai-prioritizer', icon: '🤖', color: '#9333ea', description: 'AI-powered task prioritization' },
   { label: 'Focus Timer', route: '/timer', icon: '⏲️', color: '#764ba2', description: 'Pomodoro & time tracking' },
   { label: 'Rewards', route: '/rewards', icon: '🏆', color: '#10b981', description: 'Your achievements & badges' },
   { label: 'Memory Games', route: '/memory', icon: '🧠', color: '#f59e0b', description: 'Cognitive exercises' },
   { label: 'Progress', route: '/achievements', icon: '📈', color: '#06b6d4', description: 'Track your growth' },
   { label: 'Smart Notes', route: '/clipboard', icon: '📋', color: '#8b5cf6', description: 'Cognitive clipboard' },
   { label: 'Guidance', route: '/guidance', icon: '🦉', color: '#ef4444', description: 'Task breakdown helper' },
-  { label: 'Streak', route: '/streak', icon: '🔥', color: '#f97316', description: 'Daily consistency' }
+  { label: 'Streak', route: '/streak', icon: '🔥', color: '#f97316', description: 'Daily consistency' },
+  { label: 'Profile', route: '/profile', icon: '👤', color: '#ec4899', description: 'Manage your profile & avatar' }
 ];
 
 export default function ThemedDashboard({ ageGroup }) {
