@@ -10,12 +10,15 @@ import {
   Button,
   Checkbox,
 } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { addPoints, unlockBadge } from '../../store/slices/gamificationSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addPoints as addPointsToUser } from '../../store/slices/userSlice';
+import { unlockBadge } from '../../store/slices/gamificationSlice';
+import { addPointsToBackend } from '../../utils/pointsSync';
 
 const TaskGuidance = () => {
   const [activeStep, setActiveStep] = useState(0);
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
 
   const steps = [
     {
@@ -36,10 +39,17 @@ const TaskGuidance = () => {
     },
   ];
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeStep === steps.length - 1) {
-      // Task completed!
-      dispatch(addPoints({ points: 10, message: 'Task completed! Great job!' }));
+      // Task completed! Add points to user
+      const pointsToAdd = 10;
+      dispatch(addPointsToUser(pointsToAdd));
+      
+      // Sync with backend
+      if (user?.id) {
+        await addPointsToBackend(user.id, pointsToAdd);
+      }
+      
       dispatch(unlockBadge(1)); // First Task badge
       setActiveStep(0);
     } else {

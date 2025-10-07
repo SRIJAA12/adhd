@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box, Container, Paper, Typography, TextField, Button, MenuItem, Divider, Alert
+  Box, Container, Paper, Typography, TextField, Button, MenuItem, Divider, Alert, Avatar
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -8,25 +8,63 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import FaceIcon from '@mui/icons-material/Face';
 
+const API_URL = 'http://localhost:5000';
+
+// Animated avatar options using DiceBear API
+const avatarOptions = [
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Luna",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Max",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Robot1",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Robot2",
+];
+
 export default function Signup() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     ageGroup: 'adult',
-    gender: '',
     pronouns: '',
+    avatar: avatarOptions[0],
   });
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('✓ Account created! Check your email to verify.');
-    setTimeout(() => navigate('/login'), 2000);
+    setError('');
+    setMessage('');
+
+    if (!formData.name || !formData.email) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/signup/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('✓ Account created successfully! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setError(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Network error. Please check your connection.');
+    }
   };
 
   return (
@@ -63,6 +101,12 @@ export default function Signup() {
             {message && (
               <Alert severity="success" sx={{ mb: 3 }}>
                 {message}
+              </Alert>
+            )}
+
+            {error && (
+              <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+                {error}
               </Alert>
             )}
 
@@ -135,8 +179,32 @@ export default function Signup() {
                 value={formData.pronouns}
                 onChange={handleChange}
                 placeholder="e.g., they/them, he/him, she/her"
-                sx={{ mb: 3 }}
+                sx={{ mb: 2 }}
               />
+
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                Choose your avatar:
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                {avatarOptions.map((url, index) => (
+                  <Avatar
+                    key={url}
+                    src={url}
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      cursor: 'pointer',
+                      border: formData.avatar === url ? '3px solid #667eea' : '2px solid #e0e0e0',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                      }
+                    }}
+                    onClick={() => setFormData({ ...formData, avatar: url })}
+                  />
+                ))}
+              </Box>
 
               <Button
                 fullWidth

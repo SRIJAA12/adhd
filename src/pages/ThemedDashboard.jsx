@@ -47,11 +47,9 @@ const features = [
 export default function ThemedDashboard({ ageGroup }) {
   const user = useSelector((state) => state.user.user);
   
-  // FIXED: Safely extract primitive values with fallbacks
+  // Use user's points from database instead of hardcoded gamification state
+  const totalPoints = Number(user?.points) || 0;
   const gamificationState = useSelector((state) => state.gamification);
-  
-  // Convert to number and provide defaults
-  const totalPoints = Number(gamificationState?.totalPoints) || 190;
   const currentStreak = Number(gamificationState?.currentStreak) || 0;
   
   const navigate = useNavigate();
@@ -84,12 +82,12 @@ export default function ThemedDashboard({ ageGroup }) {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
               }}
             >
-              {theme.icon}
+              {user?.avatar ? null : (user?.name?.[0] || user?.username?.[0] || theme.icon)}
             </Avatar>
           </Grid>
           <Grid item xs>
             <Typography variant="h3" sx={{ fontWeight: 800, color: 'white', mb: 0.5 }}>
-              Welcome back, {user?.name || 'User'}! {theme.icon}
+              Welcome back, {user?.name || user?.username || 'User'}! {theme.icon}
             </Typography>
             <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 500, mb: 1 }}>
               You're our {theme.hero}

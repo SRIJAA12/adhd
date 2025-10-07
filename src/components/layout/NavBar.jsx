@@ -80,8 +80,18 @@ export default function NavBar() {
         {isAuthenticated ? (
           <Box display="flex" alignItems="center" gap={2}>
             <IconButton onClick={handleMenu}>
-              <Avatar src={user?.avatar} sx={{ width: 40, height: 40 }}>
-                {user?.name?.[0]}
+              <Avatar 
+                src={user?.avatar} 
+                sx={{ 
+                  width: 40, 
+                  height: 40,
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.1)',
+                  }
+                }}
+              >
+                {user?.name?.[0] || user?.username?.[0]}
               </Avatar>
             </IconButton>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>

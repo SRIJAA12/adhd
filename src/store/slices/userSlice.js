@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const defaultUserState = {
   id: null,
   name: '',
+  username: '',
   email: '',
   ageGroup: 'adult',
   gender: '',
@@ -10,6 +11,7 @@ const defaultUserState = {
   avatar: '',
   theme: 'light',
   adhdSubtype: '',
+  points: 0,
 };
 
 const initialState = {
@@ -49,6 +51,12 @@ const userSlice = createSlice({
     updateUser(state, action) {
       state.user = { ...state.user, ...action.payload };
     },
+    updatePoints(state, action) {
+      state.user.points = action.payload;
+    },
+    addPoints(state, action) {
+      state.user.points = (state.user.points || 0) + action.payload;
+    },
     updateSignUpField(state, action) {
       state.user = { ...state.user, ...action.payload };
     },
@@ -68,6 +76,8 @@ export const {
   loginFailure,
   logout,
   updateUser,
+  updatePoints,
+  addPoints,
   updateSignUpField,
   resetUser,
 } = userSlice.actions;

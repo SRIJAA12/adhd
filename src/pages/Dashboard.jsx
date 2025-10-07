@@ -10,6 +10,15 @@ import TaskGuidance from '../components/dashboard/TaskGuidance';
 import TaskManager from '../components/dashboard/TaskManager';
 import PomodoroTimer from '../components/dashboard/PomodoroTimer';
 
+// CSS for animated avatar
+const animatedAvatarStyle = {
+  animation: 'pulse 3s infinite',
+  '@keyframes pulse': {
+    '0%': { boxShadow: '0 0 0 0 rgba(102,126,234, 0.7)' },
+    '70%': { boxShadow: '0 0 0 10px rgba(102,126,234, 0)' },
+    '100%': { boxShadow: '0 0 0 0 rgba(102,126,234, 0)' },
+  },
+};
 
 const ageThemes = {
   child: {
@@ -40,10 +49,15 @@ const ageThemes = {
 
 const Dashboard = () => {
   const user = useSelector((state) => state.user.user);
-  const { totalPoints, currentStreak } = useSelector((state) => state.gamification);
+  const gamificationState = useSelector((state) => state.gamification);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Use user's points from database
+  const points = Number(user?.points) || 0;
+  const currentStreak = Number(gamificationState?.currentStreak) || 0;
+
+  // Use ageGroup from user for theme and greeting
   const userTheme = ageThemes[user?.ageGroup] || {
     bg: "#f5f7fa",
     hero: "friend",
@@ -67,15 +81,17 @@ const Dashboard = () => {
           <Box sx={{ display: 'flex', gap: 3, mr: 3 }}>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">Points</Typography>
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>{totalPoints}</Typography>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>{points}</Typography>
             </Box>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="caption" color="text.secondary">Streak</Typography>
               <Typography variant="h6" color="warning.main" sx={{ fontWeight: 700 }}>{currentStreak} 🔥</Typography>
             </Box>
           </Box>
-          <Avatar src={user?.avatar} sx={{ bgcolor: 'primary.main', mr: 2, fontWeight: 600 }}>
-            {user?.name?.[0]?.toUpperCase()}
+          <Avatar
+            src={user?.avatar}
+            sx={{ ...animatedAvatarStyle, bgcolor: 'primary.main', mr: 2, fontWeight: 600 }}>
+            {user?.avatar ? null : (user?.name?.[0] || user?.username?.[0])?.toUpperCase()}
           </Avatar>
           <Button variant="outlined" size="small" onClick={handleLogout}>Logout</Button>
         </Toolbar>
@@ -93,13 +109,14 @@ const Dashboard = () => {
         boxShadow: '0 8px 32px rgba(102, 126, 234, 0.08)'
       }}>
         <Avatar src={user?.avatar} sx={{
+          ...animatedAvatarStyle,
           width: 76, height: 76, mr: 2, fontSize: 40, bgcolor: 'white', border: '2px solid #667eea'
         }}>
-          {userTheme.icon}
+          {user?.avatar ? null : (user?.name?.[0] || user?.username?.[0] || userTheme.icon)}
         </Avatar>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-            {userTheme.icon} Welcome, {user?.name}{user?.pronouns ? ` (${user.pronouns})` : ''}
+            {userTheme.icon} Welcome, {user?.name || user?.username} {user?.pronouns ? ` (${user.pronouns})` : ''}
           </Typography>
           <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 500 }}>
             You’re our {userTheme.hero}.

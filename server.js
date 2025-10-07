@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema({
   faceDescriptor: { type: [Number], default: null },
   adhdSubtype: { type: String, enum: ['inattentive', 'hyperactive', 'combined'], default: 'combined' },
   pronouns: { type: String, default: '' },
+  ageGroup: { type: String, enum: ['child', 'teen', 'adult', 'senior'], default: 'adult' },
+  points: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -45,7 +47,7 @@ app.get('/api/profile/:id', async (req, res) => {
 
 // Update profile route
 app.put('/api/profile/:id', async (req, res) => {
-  const { username, email, avatar, pronouns } = req.body;
+  const { username, email, avatar, pronouns, ageGroup } = req.body;
   try {
     const user = await User.findById(req.params.id);
     if(!user) return res.status(404).json({ error: 'User not found' });
@@ -54,6 +56,7 @@ app.put('/api/profile/:id', async (req, res) => {
     user.email = email || user.email;
     user.avatar = avatar || user.avatar;
     user.pronouns = pronouns || user.pronouns;
+    user.ageGroup = ageGroup || user.ageGroup;
 
     await user.save();
     res.json({ message: 'Profile updated', user });
@@ -117,7 +120,9 @@ app.post('/api/login/face', async (req, res) => {
         email: matchedUser.email,
         adhdSubtype: matchedUser.adhdSubtype,
         avatar: matchedUser.avatar,
-        pronouns: matchedUser.pronouns
+        pronouns: matchedUser.pronouns,
+        ageGroup: matchedUser.ageGroup,
+        points: matchedUser.points
       }
     });
   } catch (err) {
@@ -128,7 +133,7 @@ app.post('/api/login/face', async (req, res) => {
 
 // Face Signup API
 app.post('/api/signup/face', async (req, res) => {
-  const { username, email, descriptor, adhdSubtype, avatar, pronouns } = req.body;
+  const { username, email, descriptor, adhdSubtype, avatar, pronouns, ageGroup } = req.body;
   if (!username || !email || !descriptor) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -148,11 +153,77 @@ app.post('/api/signup/face', async (req, res) => {
       adhdSubtype: adhdSubtype || 'combined',
       avatar: avatar || '',
       pronouns: pronouns || '',
+      ageGroup: ageGroup || 'adult',
+      points: 0,
     });
     await newUser.save();
     res.json({ message: 'Registration successful', username: newUser.username });
   } catch (err) {
     console.error('Face signup error:', err);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Update user points
+app.put('/api/users/:id/points', async (req, res) => {
+  const { points } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.points = points;
+    await user.save();
+    res.json({ message: 'Points updated', points: user.points });
+  } catch (err) {
+    console.error('Points update error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Add points to user
+app.post('/api/users/:id/points/add', async (req, res) => {
+  const { points } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.points = (user.points || 0) + points;
+    await user.save();
+    res.json({ message: 'Points added', points: user.points });
+  } catch (err) {
+    console.error('Add points error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Email Signup API
+app.post('/api/signup/email', async (req, res) => {
+  const { name, email, ageGroup, pronouns, avatar } = req.body;
+  
+  // Validate inputs
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const existing = await User.findOne({ $or: [{ username: name }, { email }] });
+    if (existing) {
+      return res.status(400).json({ error: existing.username === name ? 'Username taken' : 'Email registered' });
+    }
+
+    const newUser = new User({
+      username: name,
+      email: email.trim().toLowerCase(),
+      ageGroup: ageGroup || 'adult',
+      points: 0,  // Reset points to 0 for new users
+      pronouns: pronouns || '',
+      avatar: avatar || '',
+    });
+
+    await newUser.save();
+    res.json({ message: 'Registration successful', username: newUser.username });
+  } catch (err) {
+    console.error('Email signup error:', err);
     res.status(500).json({ error: 'Registration failed' });
   }
 });

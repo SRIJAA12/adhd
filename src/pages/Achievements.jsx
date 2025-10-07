@@ -14,7 +14,12 @@ const achievements = [
 ];
 
 export default function Achievements() {
-  const { totalPoints, currentStreak } = useSelector((state) => state.gamification);
+  const user = useSelector((state) => state.user.user);
+  const gamificationState = useSelector((state) => state.gamification);
+  
+  // Use user's points from database
+  const totalPoints = Number(user?.points) || 0;
+  const currentStreak = Number(gamificationState?.currentStreak) || 0;
 
   return (
     <Box display="flex">

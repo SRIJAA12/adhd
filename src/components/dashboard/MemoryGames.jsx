@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { startGame, updateScore, winGame } from '../../store/slices/memorySlice';
-import { addPoints } from '../../store/slices/gamificationSlice';
+import { addPoints as addPointsToUser } from '../../store/slices/userSlice';
+import { addPointsToBackend } from '../../utils/pointsSync';
 import { motion } from 'framer-motion';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -51,6 +52,7 @@ export default function MemoryGames() {
   const { gamesPlayed, gamesWon, highScore, difficulty } = useSelector(
     (state) => state.memory
   );
+  const user = useSelector((state) => state.user.user);
 
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
@@ -141,7 +143,13 @@ export default function MemoryGames() {
     
     const score = Math.max(1000 - moves * 10 - time * 2, 100);
     dispatch(updateScore(score));
-    dispatch(addPoints(50));
+    
+    // Add points to user and sync with backend
+    const pointsToAdd = 50;
+    dispatch(addPointsToUser(pointsToAdd));
+    if (user?.id) {
+      addPointsToBackend(user.id, pointsToAdd);
+    }
   };
 
   const formatTime = (seconds) => {

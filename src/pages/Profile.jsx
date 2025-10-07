@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Container, Box, Typography, Paper, Avatar, TextField, Button, Grid,
-  Switch, FormControlLabel, Divider, Alert
+  Switch, FormControlLabel, Divider, Alert, MenuItem
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../store/slices/userSlice';
@@ -9,11 +9,16 @@ import Sidebar from '../components/layout/Sidebar';
 import SaveIcon from '@mui/icons-material/Save';
 import PersonIcon from '@mui/icons-material/Person';
 
+// Animated avatar options using DiceBear API
 const avatarOptions = [
-  "https://i.pravatar.cc/150?img=1",
-  "https://i.pravatar.cc/150?img=2",
-  "https://i.pravatar.cc/150?img=3",
-  "https://i.pravatar.cc/150?img=4",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Luna",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Max",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Robot1",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Robot2",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Milo",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Bella",
 ];
 
 export default function Profile() {
@@ -24,6 +29,7 @@ export default function Profile() {
     name: user?.name || '',
     email: user?.email || '',
     pronouns: user?.pronouns || '',
+    ageGroup: user?.ageGroup || 'adult',
     avatar: user?.avatar || avatarOptions[0],
   });
   const [saved, setSaved] = useState(false);
@@ -79,16 +85,21 @@ export default function Profile() {
               <Typography variant="h5" fontWeight={700}>{formData.name}</Typography>
               <Typography variant="body2" color="text.secondary">{formData.email}</Typography>
 
-              <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+              <Box sx={{ display: 'flex', gap: 2, mt: 1, flexWrap: 'wrap' }}>
                 {avatarOptions.map((url) => (
                   <Avatar
                     key={url}
                     src={url}
                     sx={{
-                      border: formData.avatar === url ? '3px solid #667eea' : 'none',
+                      border: formData.avatar === url ? '3px solid #667eea' : '2px solid #e0e0e0',
                       cursor: 'pointer',
                       width: 56,
                       height: 56,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+                      }
                     }}
                     onClick={() => setFormData({ ...formData, avatar: url })}
                   />
@@ -118,7 +129,7 @@ export default function Profile() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Preferred Pronouns"
@@ -126,6 +137,20 @@ export default function Profile() {
                 onChange={(e) => setFormData({ ...formData, pronouns: e.target.value })}
                 placeholder="e.g., they/them, he/him, she/her"
               />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                select
+                label="Age Group"
+                value={formData.ageGroup}
+                onChange={(e) => setFormData({ ...formData, ageGroup: e.target.value })}
+              >
+                <MenuItem value="child">Child (6-12)</MenuItem>
+                <MenuItem value="teen">Teen (13-18)</MenuItem>
+                <MenuItem value="adult">Adult (19-60)</MenuItem>
+                <MenuItem value="senior">Senior (60+)</MenuItem>
+              </TextField>
             </Grid>
           </Grid>
 
