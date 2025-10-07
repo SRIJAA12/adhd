@@ -9,7 +9,7 @@ import FaceRecognition from '../components/auth/FaceRecognition';
 import { loginSuccess } from '../store/slices/userSlice';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = 'http://localhost:5000';
 
 export default function FaceLogin() {
   const [error, setError] = useState('');

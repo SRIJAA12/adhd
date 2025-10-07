@@ -9,6 +9,27 @@ import CognitiveClipboard from '../components/dashboard/CognitiveClipboard';
 import TaskGuidance from '../components/dashboard/TaskGuidance';
 import TaskManager from '../components/dashboard/TaskManager';
 import PomodoroTimer from '../components/dashboard/PomodoroTimer';
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/slices/userSlice';
+
+export default function DashboardAdult() {
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
+  return (
+    <div>
+      {/* Your dashboard UI */}
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+}
+
 
 const ageThemes = {
   child: {

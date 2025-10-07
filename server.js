@@ -8,10 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const JWT_SECRET ="48814f5ac1814995f84846a7ccc4e16d" ;
+const JWT_SECRET = "48814f5ac1814995f84846a7ccc4e16d";
 
 // MongoDB connection (update URI for your DB)
-mongoose.connect("mongodb+srv://<neuroflow_user>:<neuroflow123>@cluster0.skyfw7b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect("mongodb+srv://srijaaanandhan12_db_user:7TZW3nu4Rs6O49W6@cluster0.wq31dbf.mongodb.net/neuroflow_db?retryWrites=true&w=majority&appName=Cluster0", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -53,12 +53,14 @@ app.post('/api/login/face', async (req, res) => {
     const users = await User.find({ faceDescriptor: { $ne: null } });
     if (users.length === 0) return res.status(401).json({ error: 'No registered faces found' });
 
-    const THRESHOLD = 0.6;
+    const THRESHOLD = 0.4; // Lowered threshold for stricter matching
     let matchedUser = null;
     let minDist = Infinity;
 
     for (const user of users) {
       const dist = euclideanDistance(descriptor, user.faceDescriptor);
+      console.log(`Distance for ${user.username}: ${dist}`);
+
       if (dist < THRESHOLD && dist < minDist) {
         minDist = dist;
         matchedUser = user;

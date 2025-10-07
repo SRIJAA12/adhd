@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import FaceRecognition from '../components/auth/FaceRecognition';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const API_URL = 'http://localhost:5001';
+const API_URL = 'http://localhost:5000';
 
 export default function FaceSignup() {
   const [formData, setFormData] = useState({
