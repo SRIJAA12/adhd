@@ -10,6 +10,7 @@ import {
 } from '@mui/icons-material';
 import Sidebar from '../components/layout/Sidebar';
 import mlApi from '../services/mlApi';
+import avatarController from '../services/avatarController';
 
 export default function AITaskPrioritizer() {
   const [tasks, setTasks] = useState([]);
@@ -87,10 +88,25 @@ export default function AITaskPrioritizer() {
 
   const toggleSubtask = (taskIdx, subtaskIdx) => {
     const key = `${taskIdx}-${subtaskIdx}`;
+    const isCompleting = !completedSubtasks[key];
+    
     setCompletedSubtasks({
       ...completedSubtasks,
-      [key]: !completedSubtasks[key]
+      [key]: isCompleting
     });
+
+    // Check if all subtasks are completed
+    if (isCompleting && prioritizedTasks?.predictions[taskIdx]) {
+      const task = prioritizedTasks.predictions[taskIdx];
+      const totalSubtasks = task.subtasks?.length || 0;
+      const completedCount = Object.keys(completedSubtasks).filter(k => 
+        k.startsWith(`${taskIdx}-`) && completedSubtasks[k]
+      ).length + 1;
+
+      if (completedCount === totalSubtasks) {
+        avatarController.taskCompleted(task.task.title);
+      }
+    }
   };
 
   const removeTask = (id) => {
@@ -354,6 +370,7 @@ export default function AITaskPrioritizer() {
                           startIcon={<PlayArrow />}
                           size="small"
                           sx={{ flex: 1 }}
+                          onClick={() => avatarController.taskStarted(pred.task.title)}
                         >
                           Start Task
                         </Button>

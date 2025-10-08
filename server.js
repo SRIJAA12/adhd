@@ -14,14 +14,14 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-here";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-// MongoDB connection
+// MongoDB connection (optional - app works without it)
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/neuroflow_db";
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.error("MongoDB error:", err));
+mongoose.connect(MONGODB_URI)
+.then(() => console.log("✅ MongoDB connected successfully"))
+.catch(err => {
+  console.log("⚠️  MongoDB not connected (app will work without database)");
+  console.log("   To use database features, start MongoDB or use MongoDB Atlas");
+});
 
 // Define User schema and model with avatar and faceDescriptor field
 const userSchema = new mongoose.Schema({

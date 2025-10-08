@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Box, Button } from '@mui/material';
 import Sidebar from '../components/layout/Sidebar';
 import ThemedDashboard from './ThemedDashboard';
 import { useDispatch } from 'react-redux';
 import { logout } from '../store/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
+
+// Lazy load avatar to prevent blocking
+const TalkingAvatar = React.lazy(() => import('../components/dashboard/TalkingAvatar'));
 
 export default function DashboardAdult() {
   const dispatch = useDispatch();
@@ -28,6 +31,10 @@ export default function DashboardAdult() {
         </Box>
         <ThemedDashboard ageGroup="adult" />
       </Box>
+      {/* Talking Avatar - appears on all pages */}
+      <Suspense fallback={null}>
+        <TalkingAvatar />
+      </Suspense>
     </Box>
   );
 }

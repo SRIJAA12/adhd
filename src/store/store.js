@@ -7,6 +7,7 @@ import gamificationReducer from './slices/gamificationSlice';
 import memoryReducer from './slices/memorySlice';
 import routineReducer from './slices/routineSlice';
 import appReducer from './slices/appSlice';
+import avatarReducer from './slices/avatarSlice';
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -14,12 +15,13 @@ const rootReducer = combineReducers({
   memory: memoryReducer,
   routine: routineReducer,
   app: appReducer,
+  avatar: avatarReducer,
 });
 
 const persistConfig = {
   key: 'neuroflow-root',
   storage,
-  whitelist: ['user', 'gamification', 'memory', 'routine', 'app'],
+  whitelist: ['user', 'gamification', 'memory', 'routine', 'app', 'avatar'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

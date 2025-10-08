@@ -1,96 +1,34 @@
-# Dependencies
+# dependencies
 node_modules/
 .pnp
 .pnp.js
 
-# Testing
-coverage/
-*.lcov
-.nyc_output
-
-# Production build
+# runtime data
 dist/
 build/
-out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Environment variables
+# environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env*.local
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Editor directories and files
-.vscode/
-!.vscode/extensions.json
-.idea/
+# misc
 .DS_Store
+*.pem
+*.log
+
+# IDE files
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-*.swp
-*.swo
-*~
 
-# OS files
-Thumbs.db
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Vite
-*.local
-.vite
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Package manager files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Debug
-.vscode/
-*.cpuprofile
-*.heapsnapshot
-
-# Optional: Exclude specific files
-# Uncomment if needed
-# src/api/config.js
-# src/utils/secrets.js
-
-# Exclude OpenAI API key (IMPORTANT!)
-# Make sure sensitive keys are in .env and .env is ignored
-
-# Build artifacts
-.cache/
-public/build/
-
-# TypeScript
-*.tsbuildinfo
-
-# Firebase
-.firebase/
-.firebaserc
-firebase-debug.log
-
-# Vercel
-.vercel
-
-# Local development
-.local
+# output of 'npm pack'
+*.tgz

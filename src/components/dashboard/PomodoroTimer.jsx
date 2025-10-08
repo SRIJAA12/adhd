@@ -11,6 +11,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import { Howl } from 'howler';
 import { addToGoogleCalendar } from '../../utils/calendarHelper';
+import avatarController from '../../services/avatarController';
 
 // Ambient Sound
 const ambientSound = new Howl({
@@ -87,32 +88,58 @@ export default function PomodoroTimer() {
     intervalCount,
   } = useSelector((state) => state.app);
 
+  const avatarNotifications = useSelector((state) => state.avatar.notifications);
+
   const [sessionCount, setSessionCount] = useState(0);
   const [calendarAdded, setCalendarAdded] = useState(false);
+  const [hasNotifiedHalfway, setHasNotifiedHalfway] = useState(false);
+  const [hasNotifiedAlmostDone, setHasNotifiedAlmostDone] = useState(false);
 
   useEffect(() => {
     requestNotificationPermission();
   }, []);
 
-  // Timer Logic
+  // Timer Logic with Avatar Integration
   useEffect(() => {
     if (!timerActive) return;
 
     const interval = setInterval(() => {
       const updatedCount = intervalCount + 1;
+      const remaining = workDuration - updatedCount;
 
+      // Timer complete
       if (updatedCount >= workDuration) {
         sendNotification('🎉 Focus Session Complete!', 'Great work! Take a break.');
         dispatch(setTimerActive(false));
         dispatch(resetTimer());
         setSessionCount(prev => prev + 1);
+        setHasNotifiedHalfway(false);
+        setHasNotifiedAlmostDone(false);
+        
+        // Avatar celebrates completion
+        if (avatarNotifications.timerReminders) {
+          avatarController.timerComplete();
+        }
       } else {
         dispatch(setIntervalCount(updatedCount));
+
+        // Halfway notification (50% remaining)
+        if (remaining <= workDuration / 2 && remaining > workDuration / 2 - 5 && !hasNotifiedHalfway && avatarNotifications.timerReminders) {
+          avatarController.timerHalfway(remaining);
+          setHasNotifiedHalfway(true);
+        }
+
+        // Almost done notification (5 minutes or 25% remaining, whichever is less)
+        const almostDoneThreshold = Math.min(300, workDuration / 4);
+        if (remaining <= almostDoneThreshold && remaining > almostDoneThreshold - 5 && !hasNotifiedAlmostDone && avatarNotifications.timerReminders) {
+          avatarController.timerAlmostDone(remaining);
+          setHasNotifiedAlmostDone(true);
+        }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timerActive, intervalCount, workDuration, dispatch]);
+  }, [timerActive, intervalCount, workDuration, dispatch, hasNotifiedHalfway, hasNotifiedAlmostDone, avatarNotifications.timerReminders]);
 
   // Ambient Sound Control
   useEffect(() => {
@@ -178,7 +205,15 @@ export default function PomodoroTimer() {
           variant="contained"
           size="large"
           startIcon={timerActive ? <PauseIcon /> : <PlayArrowIcon />}
-          onClick={() => dispatch(setTimerActive(!timerActive))}
+          onClick={() => {
+            const wasActive = timerActive;
+            dispatch(setTimerActive(!timerActive));
+            
+            // Avatar notification when starting timer
+            if (!wasActive && avatarNotifications.timerReminders) {
+              avatarController.timerStarted(workDuration);
+            }
+          }}
           sx={{
             py: 1.5,
             background: timerActive ? '#ef4444' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Box, CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 import NavBar from './components/layout/NavBar';
+import taskReminderService from './services/taskReminderService';
 
 // Pages
 import Login from './pages/Login';
@@ -37,11 +39,31 @@ const theme = createTheme({
 function App() {
   const isAuthenticated = useSelector((state) => state.user?.isAuthenticated || false);
 
+  // Initialize reminder services when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      taskReminderService.start();
+      taskReminderService.startEncouragementTimer();
+      taskReminderService.startBreakReminders();
+    } else {
+      taskReminderService.stop();
+    }
+
+    return () => {
+      taskReminderService.stop();
+    };
+  }, [isAuthenticated]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {isAuthenticated && <NavBar />}
-      <Routes>
+      <Suspense fallback={
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+          <CircularProgress />
+        </Box>
+      }>
+        <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -106,7 +128,8 @@ function App() {
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </ThemeProvider>
   );
 }
