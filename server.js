@@ -313,11 +313,31 @@ app.post('/api/chatbot/message', async (req, res) => {
   }
 });
 
+// Serve static files from React build
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, 'neuroflow-dashboard/dist')));
+
+// Catch all handler: send back React's index.html file for any non-API routes
+app.get('*', (req, res) => {
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, 'neuroflow-dashboard/dist/index.html'));
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Chatbot ready!`);
+  console.log(`Frontend served from: ${path.join(__dirname, 'neuroflow-dashboard/dist')}`);
 });
 
 /* REMOVED - Not needed anymore
